@@ -5,7 +5,7 @@
 export LD_LIBRARY_PATH=/skyward/lib64:/odm/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64
 export LD_PRELOAD=/skyward/lib64/libbinder.so
 i=0
-while [ $i -lt 60 ]; do
+while [ $i -lt 900 ]; do
     /skyward/hw/weaver-nxp && exit 0
     i=$((i + 1))
     sleep 2
