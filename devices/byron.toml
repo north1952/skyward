@@ -3,7 +3,7 @@ codename = "byron"
 brand = "Xiaomi"
 model = "Xiaomi 17 Max"
 ab = true
-soc = { hans = "第五代骁龙®8至尊版移动平台", hant = "Snapdragon® 8 Elite Gen 5 行動平台", en = "Snapdragon® 8 Elite Gen 5 Mobile Platform" }
+soc = { hans = "绗簲浠ｉ獊榫櫬?鑷冲皧鐗堢Щ鍔ㄥ钩鍙?, hant = "Snapdragon庐 8 Elite Gen 5 琛屽嫊骞冲彴", en = "Snapdragon庐 8 Elite Gen 5 Mobile Platform" }
 os_version_prop = "ro.mi.os.version.incremental"
 
 [display]
@@ -83,10 +83,13 @@ server = "https://update.miui.com/updates/miotaV3.php"
 # The stock build the recovery is made on: the Chinese system's
 # OS3.0.310.0, whose full update package on the phone maker's own download
 # server holds the recovery partition the recovery is built on top of.
+# 自建基线：本机 OS4.0.3.0.XAFCNXM（Android 17）的恢复分区。package 指向本 fork 的
+# Release 资源（zip 内即 recovery.img）；拿到 Xiaomi 官方 ota_full 地址后可换回官方 URL，
+# 并把 build.yml 的取料步骤还原为 skyward-pack stock。
 [stock]
-version = "OS3.0.310.0.WAFCNXM"
-package = "https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS3.0.310.0.WAFCNXM/byron-ota_full-OS3.0.310.0.WAFCNXM-user-16.0-af218e1233.zip"
-recovery = "da70265665598f9d66e18bfe49d681b33da63d7ddb1a73375e8f1c7433710e25"
+version = "OS4.0.3.0.XAFCNXM"
+package = "https://github.com/north1952/skyward/releases/download/stock/byron-ota_full-OS4.0.3.0.XAFCNXM-user-17.0-8a167311.zip"
+recovery = "8a167311d5c2c90f515ecb1f738154cd55159672a80fcf7fe56cedd214eb709a"
 
 # qcom-hv-haptics (qcom,hv-haptics in its dtbo), with the click made from
 # samples at the motor's resonant frequency as on the 17 Ultra. The
