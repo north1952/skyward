@@ -164,11 +164,46 @@ source = "devices/byron/files/odm/bin/hw/android.hardware.weaver-service.nxp-qti
 mode = 0o755
 
 [[file]]
+path = "skyward/se-qti.sh"
+source = "devices/byron/files/skyward/se-qti.sh"
+mode = 0o755
+
+[[file]]
 path = "skyward/weaver-nxp.sh"
 source = "devices/byron/files/skyward/weaver-nxp.sh"
 mode = 0o755
 
-# 用恢复自带的 binder 运行时报关，root 身份起 weaver，与 YAPR 的做法一致。
+[[file]]
+path = "skyward/hw/se-qti"
+source = "devices/byron/files/vendor/bin/hw/android.hardware.secure_element-service.qti"
+mode = 0o755
+[[file]]
+path = "skyward/lib64/libEseUtils.so"
+source = "devices/byron/files/vendor/lib64/hw/libEseUtils.so"
+[[file]]
+path = "skyward/lib64/libGPQeSE.so"
+source = "devices/byron/files/vendor/lib64/libGPQeSE.so"
+[[file]]
+path = "skyward/lib64/libQSEEComAPI.so"
+source = "devices/byron/files/vendor/lib64/libQSEEComAPI.so"
+[[file]]
+path = "skyward/lib64/libstnfc-streset.so"
+source = "devices/byron/files/vendor/lib64/libstnfc-streset.so"
+[[file]]
+path = "skyward/lib64/android.hardware.secure_element-V1-ndk.so"
+source = "devices/byron/files/vendor/lib64/android.hardware.secure_element-V1-ndk.so"
+[[file]]
+path = "skyward/lib64/android.hardware.secure_element@1.0.so"
+source = "devices/byron/files/vendor/lib64/android.hardware.secure_element@1.0.so"
+
+# 安全芯片 HAL 与 weaver：都从 /skyward 起，root 身份，库路径带恢复自带的清单，
+# 与能解密的 YAPR 恢复一致。HAL 先起，weaver 自己会等它。
+[[service]]
+path = "/system/bin/sh"
+args = ["/skyward/se-qti.sh"]
+user = "root"
+groups = ["nfc", "root"]
+
 [[service]]
 path = "/system/bin/sh"
 args = ["/skyward/weaver-nxp.sh"]
