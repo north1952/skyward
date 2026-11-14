@@ -97,3 +97,80 @@ recovery = "8a167311d5c2c90f515ecb1f738154cd55159672a80fcf7fe56cedd214eb709a"
 [haptics]
 resonance = "/sys/class/qcom-haptics/lra_frequency_hz"
 strength = { lightest = 0.25, strongest = 0.75 }
+
+# 解密链：本机系统的 libdl_android.so 只是指向 /apex/... 的软链，recovery 不挂
+# APEX，所以把能解密的那份 recovery（YAPR）里的 weaver 与它依赖的库一起带进来，
+# 放在 /skyward 下，不覆盖 /system/lib64，免得影响其他进程。
+
+[[file]]
+path = "skyward/lib64/libdl_android.so"
+source = "devices/byron/files/system/lib64/libdl_android.so"
+
+[[file]]
+path = "skyward/lib64/libvndksupport.so"
+source = "devices/byron/files/system/lib64/libvndksupport.so"
+
+[[file]]
+path = "skyward/lib64/libapexsupport.so"
+source = "devices/byron/files/system/lib64/libapexsupport.so"
+
+[[file]]
+path = "skyward/lib64/libhardware.so"
+source = "devices/byron/files/system/lib64/libhardware.so"
+
+[[file]]
+path = "skyward/lib64/libbase.so"
+source = "devices/byron/files/system/lib64/libbase.so"
+
+[[file]]
+path = "skyward/lib64/libutils.so"
+source = "devices/byron/files/system/lib64/libutils.so"
+
+[[file]]
+path = "skyward/lib64/liblog.so"
+source = "devices/byron/files/system/lib64/liblog.so"
+
+[[file]]
+path = "skyward/lib64/libcutils.so"
+source = "devices/byron/files/system/lib64/libcutils.so"
+
+[[file]]
+path = "skyward/lib64/libbinder_ndk.so"
+source = "devices/byron/files/system/lib64/libbinder_ndk.so"
+
+[[file]]
+path = "skyward/lib64/libbinder.so"
+source = "devices/byron/files/system/lib64/libbinder.so"
+
+[[file]]
+path = "skyward/lib64/libhidlbase.so"
+source = "devices/byron/files/system/lib64/libhidlbase.so"
+
+[[file]]
+path = "skyward/lib64/libprocessgroup.so"
+source = "devices/byron/files/system/lib64/libprocessgroup.so"
+
+[[file]]
+path = "skyward/lib64/android.hardware.weaver-V2-ndk.so"
+source = "devices/byron/files/system/lib64/android.hardware.weaver-V2-ndk.so"
+
+[[file]]
+path = "skyward/lib64/android.se.omapi-V1-ndk.so"
+source = "devices/byron/files/system/lib64/android.se.omapi-V1-ndk.so"
+
+[[file]]
+path = "skyward/hw/weaver-nxp"
+source = "devices/byron/files/odm/bin/hw/android.hardware.weaver-service.nxp-qti"
+mode = 0o755
+
+[[file]]
+path = "skyward/weaver-nxp.sh"
+source = "devices/byron/files/skyward/weaver-nxp.sh"
+mode = 0o755
+
+# 用恢复自带的 binder 运行时报关，root 身份起 weaver，与 YAPR 的做法一致。
+[[service]]
+path = "/system/bin/sh"
+args = ["/skyward/weaver-nxp.sh"]
+user = "root"
+groups = ["root"]
