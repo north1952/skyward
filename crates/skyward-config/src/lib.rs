@@ -245,8 +245,9 @@ pub struct Logd {
 /// program came from keeps it out of a recovery's reach.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct File {
-    /// Where it goes in the ramdisk, under `skyward/`, where the packer keeps
-    /// the recovery's own files.
+    /// Where it goes in the ramdisk: under `skyward/`, where the packer keeps the
+    /// recovery's own files, or under `system/lib64/`, which the linker a vendor
+    /// program runs in searches.
     pub path: String,
     /// Where it is in the source tree, from the root of the repository.
     pub source: String,
@@ -561,9 +562,9 @@ impl DeviceConfig {
         }
         for file in &cfg.files {
             ensure!(
-                file.path.starts_with("skyward/")
+                (file.path.starts_with("skyward/") || file.path.starts_with("system/lib64/"))
                     && !file.path.split('/').any(|p| p.is_empty() || p == "." || p == ".."),
-                "[[file]] {}: is not a file's path under skyward/",
+                "[[file]] {}: is not a file's path under skyward/ or system/lib64/",
                 file.path
             );
             let source = Path::new(&file.source);
