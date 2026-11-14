@@ -70,6 +70,11 @@ pub struct DeviceConfig {
     /// boot actions.
     #[serde(default)]
     pub owners: Vec<Owners>,
+    /// Files the image carries besides those the packer writes, such as the
+    /// libraries a program of the phone's needs and the system it came from
+    /// keeps where a recovery cannot read them.
+    #[serde(default, rename = "file")]
+    pub files: Vec<File>,
     #[serde(default)]
     pub wipe: Wipe,
     #[serde(default)]
@@ -233,6 +238,27 @@ pub struct Logd {
     /// Libraries of the installed system it loads that the recovery's own
     /// library folder lacks, put there before it is started.
     pub libraries: Vec<String>,
+}
+
+/// A file the image carries at `path`, taken from `source` in the source
+/// tree: a library a program of the phone's needs, where the system the
+/// program came from keeps it out of a recovery's reach.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct File {
+    /// Where it goes in the ramdisk, under `skyward/`, where the packer keeps
+    /// the recovery's own files.
+    pub path: String,
+    /// Where it is in the source tree, from the root of the repository.
+    pub source: String,
+    /// The mode it is written with.
+    #[serde(default = "File::readable")]
+    pub mode: u32,
+}
+
+impl File {
+    fn readable() -> u32 {
+        0o644
+    }
 }
 
 /// Files the phone's own init hands to one account as it boots, each given
@@ -533,6 +559,23 @@ impl DeviceConfig {
                 ensure!(capability(name).is_some(), "[[service]] {}: {name} is not a capability init knows", s.path);
             }
         }
+        for file in &cfg.files {
+            ensure!(
+                file.path.starts_with("skyward/")
+                    && !file.path.split('/').any(|p| p.is_empty() || p == "." || p == ".."),
+                "[[file]] {}: is not a file's path under skyward/",
+                file.path
+            );
+            let source = Path::new(&file.source);
+            let plain = source.components().all(|c| matches!(c, std::path::Component::Normal(_)));
+            ensure!(
+                plain && !file.source.is_empty(),
+                "[[file]] {}: {} is not a path from the root of the repository",
+                file.path,
+                file.source
+            );
+            ensure!(file.mode <= 0o7777, "[[file]] {}: mode {:o} is not a file's mode", file.path, file.mode);
+        }
         for folder in &cfg.backup.data_skipped {
             let path = Path::new(folder);
             let plain = path.components().all(|c| matches!(c, std::path::Component::Normal(_)));
@@ -791,7 +834,7 @@ mod tests {
             (include_str!("../../../devices/dada.toml"), "OS3.0.307.0.WOCCNXM"),
             (include_str!("../../../devices/haotian.toml"), "OS3.0.309.0.WOBCNXM"),
             (include_str!("../../../devices/xuanyuan.toml"), "OS3.0.314.0.WOACNXM"),
-            (include_str!("../../../devices/byron.toml"), "OS4.0.3.0.XAFCNXM"),
+            (include_str!("../../../devices/byron.toml"), "OS3.0.310.0.WAFCNXM"),
             (include_str!("../../../devices/zorn.toml"), "OS3.0.309.0.WOKCNXM"),
             (include_str!("../../../devices/miro.toml"), "OS3.0.305.0.WOMCNXM"),
             (include_str!("../../../devices/annibale.toml"), "OS3.0.307.0.WPKCNXM"),
