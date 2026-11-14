@@ -135,7 +135,7 @@ fn main() -> Result<()> {
                 anyhow::bail!("{} holds {}, which is not a stock recovery", stock.display(), e.name);
             }
             let read = |p: &PathBuf| std::fs::read(p).with_context(|| format!("read {}", p.display()));
-            skyward_config::DeviceConfig::load(&config)?;
+            let device = skyward_config::DeviceConfig::load(&config)?;
             rd.replace(paths::RECOVERY, read(&binary)?)?;
             // Install scripts look for the commands a stock recovery lacks
             // among its programs, and its unzip there too, a link to ziptool
@@ -155,6 +155,13 @@ fn main() -> Result<()> {
                 rd.add(paths::TASK_PROFILES, 0o644, TASK_PROFILES.to_vec())?;
             }
             rd.add(paths::MTP_RC, 0o644, MTP_RC.to_vec())?;
+            // What the device configuration names besides the packer's own
+            // files: the libraries a program of the phone's needs, where the
+            // system the program came from keeps them out of a recovery.
+            for file in &device.files {
+                let bytes = std::fs::read(&file.source).with_context(|| format!("read {}", file.source))?;
+                rd.add(&file.path, file.mode, bytes)?;
+            }
             // On an unlocked device adbd keeps root when ro.secure is 0 and
             // lets any computer in without authorization when ro.adb.secure is
             // 0; init lets a later line of a property file override an earlier
