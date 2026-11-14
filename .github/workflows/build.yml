@@ -129,11 +129,17 @@ jobs:
         with:
           path: stock/recovery.img
           key: stock-recovery-${{ steps.stock.outputs.recovery }}
-      # Only what the recovery partition takes is read of the package,
-      # which is several gigabytes in all.
-      - name: Take the recovery partition out of the stock package
+      # 自建基线：包内直接是 recovery.img（不是 payload.bin），所以不走
+      # skyward-pack stock 的取料路径，改为按 [stock] package 下载后解出分区。
+      - name: Take the stock recovery out of our own package
         if: steps.cache.outputs.cache-hit != 'true'
-        run: tools/skyward-pack stock --config "devices/${{ matrix.device }}.toml" --out stock/recovery.img
+        env:
+          PACKAGE: ${{ steps.stock.outputs.package }}
+        run: |
+          mkdir -p stock
+          curl -L --fail --retry 3 -o stock-pkg.zip "$PACKAGE"
+          unzip -o -q stock-pkg.zip recovery.img -d stock/
+          ls -l stock/recovery.img
       - name: Check the stock recovery
         env:
           RECOVERY: ${{ steps.stock.outputs.recovery }}
