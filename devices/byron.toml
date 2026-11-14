@@ -88,7 +88,7 @@ server = "https://update.miui.com/updates/miotaV3.php"
 # 并把 build.yml 的取料步骤还原为 skyward-pack stock。
 [stock]
 version = "OS4.0.3.0.XAFCNXM"
-package = "https://github.com/north1952/skyward/releases/download/stock/byron-ota_full-OS4.0.3.0.XAFCNXM-user-17.0-8a167311.zip"
+package = "https://github.com/north1952/skyward/releases/download/OS4.0.3.0.XAFCNXM/byron-ota_full-OS4.0.3.0.XAFCNXM-user-17.0-8a167311.zip"
 recovery = "8a167311d5c2c90f515ecb1f738154cd55159672a80fcf7fe56cedd214eb709a"
 
 # qcom-hv-haptics (qcom,hv-haptics in its dtbo), with the click made from
