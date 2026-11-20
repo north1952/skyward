@@ -13,6 +13,8 @@ mod backup;
 mod decrypt;
 #[cfg(target_os = "android")]
 mod filework;
+#[cfg(any(target_os = "android", test))]
+mod firmware_snapshot;
 #[cfg(target_os = "android")]
 mod haptics;
 #[cfg(target_os = "android")]
@@ -227,7 +229,7 @@ fn main() -> Result<()> {
     // init starts the recovery service by path with no arguments.
     let started_as = std::env::args_os().next().unwrap_or_default();
     let name = Path::new(&started_as).file_name().unwrap_or_default();
-    if name == "recovery" {
+    if name == "recovery" && std::env::args_os().len() == 1 {
         return recovery();
     }
     // Install scripts run the commands linked to this binary by their names.
@@ -537,6 +539,9 @@ fn bring_up(cfg: &DeviceConfig, slot: skyward_vab::Slot, found: Result<keys::Fou
     std::fs::write(FIRMWARE_FALLBACK, "1").with_context(|| format!("write 1 to {FIRMWARE_FALLBACK}"))?;
     if let Some(firmware) = &cfg.firmware {
         mount_firmware(&firmware.partition)?;
+        if let Err(error) = firmware_snapshot::isolate(&firmware.partition) {
+            skyward_sys::kmsg(&format!("firmware isolation failed; installation blocked: {error:#}"))?;
+        }
     }
     for name in &cfg.partitions.mounted {
         let at = skyward_block::fstab::mount(name)?;
