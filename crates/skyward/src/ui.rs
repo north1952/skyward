@@ -999,6 +999,12 @@ fn set_slot(slot: skyward_vab::Slot) -> Result<skyward_vab::BootSlots, String> {
 /// and the booted slot's partitions come off.
 fn detach(services: Vec<Service>) -> Detach {
     Box::new(move || {
+        let config = skyward_config::DeviceConfig::load(
+            Path::new("/").join(skyward_config::ramdisk::CONFIG))?;
+        if let Some(firmware) = config.firmware {
+            crate::firmware_snapshot::check(&firmware.partition)
+                .context("firmware dependencies must be isolated before any installer runs")?;
+        }
         let slot = skyward_vab::current_slot()?.context("not an A/B phone")?;
         let mounted = skyward_vab::mounted_partitions(slot)?;
         let busy = services::pin(&services, &mounted)?;
